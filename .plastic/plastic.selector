@@ -1,0 +1,4 @@
+repository "rescue sin@jiaxxii@cloud.cn"
+  path "/"
+    br "/main"
+    co "/main"
