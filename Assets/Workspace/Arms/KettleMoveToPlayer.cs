@@ -17,7 +17,6 @@ namespace Workspace.Arms
             public float EndToleranceDistance => endToleranceDistance;
             public Ease MoveEase => moveEase;
         }
-
         public KettleMoveToPlayer(IKettle resources, MoveToPlayerProperty privateRes) : base(resources, privateRes)
         {
         }

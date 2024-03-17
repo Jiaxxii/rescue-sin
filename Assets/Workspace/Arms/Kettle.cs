@@ -4,19 +4,16 @@ using DG.Tweening;
 using UnityEngine;
 using UnityEngine.Serialization;
 using Workspace.FiniteStateMachine;
+using Workspace.FiniteStateMachine.ExpandInterface;
 using Workspace.Player;
 
 namespace Workspace.Arms
 {
-    public interface IKettle
+    public interface IKettle : IPlayerPosition
     {
         Transform Transform { get; }
         Transform FloatPoint { get; }
-        Vector3 PlayerOffsetPosition { get; }
-        float GetPlayerDistance(Vector3 position);
-        float GetPlayerDistance();
 
-        float GetPlayerFloatDistance(Vector3 position);
 
         float GetPlayerFloatDistance();
 
@@ -29,14 +26,8 @@ namespace Workspace.Arms
 
         public Transform FloatPoint => floatPoint;
 
-        public Vector3 PlayerOffsetPosition => new(player.position.x + playerOffset.x, player.position.y + playerOffset.y, player.position.z);
 
-
-        [Header("玩家")] [SerializeField] private Transform player;
         [Tooltip("水壶的移动目标点")] [SerializeField] private Transform floatPoint;
-
-        [Tooltip("玩家的坐标点进行偏移")] [SerializeField]
-        private Vector3 playerOffset;
 
 
         [Header("默认(浮空)")] [SerializeField] private KettleIdle.IdleProperty idleProperty;
@@ -45,8 +36,8 @@ namespace Workspace.Arms
 
         private void Awake()
         {
-            Add(KettleState.Idle, new KettleIdle(this, idleProperty));
-            Add(KettleState.MoveToPlayer, new KettleMoveToPlayer(this, moveToPlayerProperty));
+            Add(new KettleIdle(this, idleProperty));
+            Add(new KettleMoveToPlayer(this, moveToPlayerProperty));
         }
 
         private void Start()
@@ -56,25 +47,6 @@ namespace Workspace.Arms
         }
 
 
-        public float GetPlayerDistance(Vector3 position)
-        {
-            return Vector3.Distance(position, player.position + playerOffset);
-        }
-
-        public float GetPlayerDistance()
-        {
-            return Vector3.Distance(transform.position, player.position + playerOffset);
-        }
-
-
-        public float GetPlayerFloatDistance(Vector3 position)
-        {
-            return Vector3.Distance(position, floatPoint.position);
-        }
-
-        public float GetPlayerFloatDistance()
-        {
-            return GetPlayerFloatDistance(transform.position);
-        }
+        public float GetPlayerFloatDistance() => Vector3.Distance(FloatPoint.position, CurrentPosition);
     }
 }
