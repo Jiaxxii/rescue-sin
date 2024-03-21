@@ -23,7 +23,7 @@ namespace Workspace.FiniteStateMachine
         public abstract void OnUnityUpdate();
         public abstract void OnExit();
 
-        public virtual void OnUnityFixeUpdate()
+        public virtual void OnUnityFixedUpdate()
         {
         }
 

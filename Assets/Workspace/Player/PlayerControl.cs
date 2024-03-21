@@ -17,7 +17,7 @@ namespace Workspace.Player
 
         private readonly int _animatorHashSpeed = Animator.StringToHash("speed");
 
-        private void Awake() => Application.targetFrameRate = 90;
+          private void Awake() => Application.targetFrameRate = 60;
 
         private void Update()
         {

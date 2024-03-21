@@ -13,11 +13,8 @@ namespace Workspace.Arms
     {
         Transform Transform { get; }
         Transform FloatPoint { get; }
-
-
+        void ChangedState(KettleState state);
         float GetPlayerFloatDistance();
-
-        void ChangedState(KettleState kettleState);
     }
 
     public class Kettle : FsmBehaviour<KettleState, IKettle>, IKettle
@@ -36,16 +33,15 @@ namespace Workspace.Arms
 
         private void Awake()
         {
-            Add(new KettleIdle(this, idleProperty));
-            Add(new KettleMoveToPlayer(this, moveToPlayerProperty));
+            StateMachine = new StateMachine<KettleState, IKettle>(this);
+            StateMachine.Add(new KettleIdle(this, idleProperty));
+            StateMachine.Add(new KettleMoveToPlayer(this, moveToPlayerProperty));
         }
 
         private void Start()
         {
-            StateMachine = new StateMachine<KettleState, IKettle>(this);
-            ChangedState(KettleState.Idle);
+            StateMachine.ChangeState(KettleState.Idle);
         }
-
 
         public float GetPlayerFloatDistance() => Vector3.Distance(FloatPoint.position, CurrentPosition);
     }

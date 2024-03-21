@@ -20,7 +20,7 @@ namespace Workspace.FiniteStateMachine
         /// <summary>
         /// 用于物理计算且独立于帧率的 MonoBehaviour.FixedUpdate 消息
         /// </summary>
-        public void OnUnityFixeUpdate();
+        public void OnUnityFixedUpdate();
 
         /// <summary>
         /// 如果启用了 Behaviour，则每帧调用 LateUpdate。

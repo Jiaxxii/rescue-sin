@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using UnityEngine;
 using Workspace.FiniteStateMachine.ExpandInterface;
 
@@ -11,14 +10,14 @@ namespace Workspace.FiniteStateMachine
     {
         protected StateMachine<TState, TResources> StateMachine;
 
-        private readonly Dictionary<TState, IState<TState>> _stateMap = new();
+        // private readonly Dictionary<TState, IState<TState>> _stateMap = new();
 
         [Header("玩家设置")] [SerializeField] protected Transform player;
 
         [Tooltip("玩家的坐标点进行偏移")] [SerializeField]
         protected Vector2 playerOffset;
 
-        protected virtual TState CurrentState { get; set; }
+        // protected virtual TState CurrentState { get; set; }
 
         public virtual Vector3 CurrentPosition => transform.position;
 
@@ -29,158 +28,67 @@ namespace Workspace.FiniteStateMachine
             StateMachine?.Update();
         }
 
-        protected void Add(IState<TState> stateObject)
-        {
-            var state = stateObject.State;
-            if (!_stateMap.TryAdd(state, stateObject))
-            {
-                Debug.LogWarning($"重复添加的状态\"{state}\"");
-            }
-        }
+
+        public void ChangedState(TState state) => StateMachine.ChangeState(state);
 
 
-        public virtual void ChangedState(TState state)
-        {
-            if (!_stateMap.TryGetValue(state, out var stateObject))
-            {
-                Debug.LogError($"没有定义的状态\"{state}\"");
-                return;
-            }
-
-            CurrentState = stateObject.State;
-            StateMachine.ChangeState(stateObject);
-        }
-
-
-        #region Distance
-
-        /// <summary>
-        /// 返回目标与玩家之间的距离 (玩家偏移坐标)
-        /// </summary>
-        /// <param name="position">目标</param>
-        /// <returns></returns>
-        public float Distance(Vector3 position) => Vector3.Distance(PlayerOffsetPosition, position);
-
-        /// <summary>
-        /// 返回目标与玩家之间的距离 (玩家偏移坐标)
-        /// </summary>
-        /// <returns></returns>
         public virtual float Distance() => Vector3.Distance(PlayerOffsetPosition, CurrentPosition);
 
-        #endregion
+        
+        public virtual bool InRangeAs(Range? rangeX, Range? rangeY)
+        {
+            var resultX = true;
+            var resultY = true;
 
-        #region InPlayerDirection
+            if (rangeX != null)
+            {
+                resultX = PlayerOffsetPosition.x >= rangeX.Value.Min && PlayerOffsetPosition.x <= rangeX.Value.Max;
+            }
 
-        /// <summary>
-        /// 返回目标在玩家的方向 (玩家偏移坐标)
-        /// </summary>
-        /// <param name="position">目标坐标</param>
-        /// <returns></returns>
-        public Vector3 InPlayerDirection(Vector3 position) => (PlayerOffsetPosition - position).normalized;
+            if (rangeY != null)
+            {
+                resultY = PlayerOffsetPosition.y >= rangeY.Value.Min && PlayerOffsetPosition.y <= rangeY.Value.Max;
+            }
 
-        /// <summary>
-        /// 返回目标在玩家的方向 (玩家偏移坐标)
-        /// </summary>
-        /// <returns></returns>
-        public virtual Vector3 InPlayerDirection() => (PlayerOffsetPosition - CurrentPosition).normalized;
+            return resultX && resultY;
+        }
 
-        #endregion
+        
+        public virtual bool InRangeOffset(Range? offsetX, Range? offsetY)
+        {
+            Range? rangeX = null;
+            Range? rangeY = null;
+            if (offsetX != null) rangeX = new Range(CurrentPosition.x + offsetX.Value.Min, CurrentPosition.x + offsetX.Value.Max);
+            if (offsetY != null) rangeY = new Range(CurrentPosition.y + offsetY.Value.Min, CurrentPosition.y + offsetY.Value.Max);
+            return InRangeAs(rangeX, rangeY);
+        }
 
-        #region InPlayer
+        
+        public float Distance(Vector3 position) => Vector3.Distance(PlayerOffsetPosition, position);
+        
+        
+        public Vector2 GetPlayerDirection() => (CurrentPosition - PlayerOffsetPosition).normalized;
+        
 
-        #region InRangeX_Y
+        public Vector2 GetPlayerHorizontalDirection(float tolerance = 0)
+        {
+            var horizontalDifference = PlayerOffsetPosition.x - CurrentPosition.x;
 
-        /// <summary>
-        /// 返回玩家是否在指定的X范围内 (玩家偏移坐标)
-        /// </summary>
-        /// <param name="range">绝对范围</param>
-        /// <returns></returns>
-        public bool InRangeX(Vector2 range) => range.x < PlayerOffsetPosition.x && range.y > PlayerOffsetPosition.x;
+            if (Mathf.Abs(horizontalDifference) <= tolerance)
+                return Vector2.zero; // 玩家在水平方向上的位置与敌人在容差范围内，认为没有方向移动  
 
-        /// <summary>
-        /// 返回玩家是否在指定的Y范围内 (玩家偏移坐标)
-        /// </summary>
-        /// <param name="range">绝对范围</param>
-        /// <returns></returns>
-        public bool InRangeY(Vector2 range) => range.x > PlayerOffsetPosition.y && range.y < PlayerOffsetPosition.y;
+            return horizontalDifference > 0 ? Vector2.right : Vector2.left;
+        }
+        
+        
+        public Vector2 GetPlayerVerticalDirection(float tolerance = 0)
+        {
+            var verticalDifference = PlayerOffsetPosition.y - CurrentPosition.x;
 
+            if (Mathf.Abs(verticalDifference) <= tolerance)
+                return Vector2.zero; // 玩家在垂直方向上的位置与敌人在容差范围内，认为没有方向移动  
 
-        #region CurrentInRangeX_Y
-
-        /// <summary>
-        /// 返回玩家是否在指定的X范围内 (玩家偏移坐标) (相对偏移)
-        /// </summary>
-        /// <param name="offsetRange">基于 CurrentPosition.x 进行偏移</param>
-        /// <returns></returns>
-        public virtual bool CurrentInRangeX(Vector2 offsetRange) => InRangeX(new Vector2(CurrentPosition.x - offsetRange.x, CurrentPosition.x + offsetRange.y));
-
-        /// <summary>
-        /// 返回玩家是否在指定的Y范围内 (玩家偏移坐标) (相对偏移)
-        /// </summary>
-        /// <param name="offsetRange">基于 CurrentPosition.y 进行偏移</param>
-        /// <returns></returns>
-        public virtual bool CurrentInRangeY(Vector2 offsetRange) => InRangeY(new Vector2(CurrentPosition.y - offsetRange.x, CurrentPosition.y + offsetRange.y));
-
-        #endregion
-
-        #endregion
-
-        #region InLeft_Right_Up_Down
-
-        /// <summary>
-        /// 返回目标是否在玩家的左边 (玩家偏移坐标)
-        /// </summary>
-        /// <param name="position">目标绝对位置</param>
-        /// <returns></returns>
-        public bool InPlayerLeft(Vector3 position) => PlayerOffsetPosition.x > position.x;
-
-        /// <summary>
-        /// 返回目标是否在玩家的左边 (玩家偏移坐标)
-        /// </summary>
-        /// <returns></returns>
-        public virtual bool InPlayerLeft() => PlayerOffsetPosition.x > CurrentPosition.x;
-
-        /// <summary>
-        /// 返回目标是否在玩家的右边 (玩家偏移坐标)
-        /// </summary>
-        /// <param name="position">目标绝对位置</param>
-        /// <returns></returns>
-        public bool InPlayerRight(Vector3 position) => PlayerOffsetPosition.x < position.x;
-
-        /// <summary>
-        /// 返回目标是否在玩家的右边 (玩家偏移坐标)
-        /// </summary>
-        /// <returns></returns>
-        public virtual bool InPlayerRight() => PlayerOffsetPosition.x < CurrentPosition.x;
-
-        /// <summary>
-        /// 返回目标是否在玩家的上边 (玩家偏移坐标)
-        /// </summary>
-        /// <param name="position">目标绝对位置</param>
-        /// <returns></returns>
-        public bool InPlayerUp(Vector3 position) => PlayerOffsetPosition.y > position.y;
-
-        /// <summary>
-        /// 返回目标是否在玩家的上边 (玩家偏移坐标)
-        /// </summary>
-        /// <returns></returns>
-        public virtual bool InPlayerUp() => PlayerOffsetPosition.y > CurrentPosition.y;
-
-        /// <summary>
-        /// 返回目标是否在玩家的下边 (玩家偏移坐标)
-        /// </summary>
-        /// <param name="position">目标绝对位置</param>
-        /// <returns></returns>
-        public bool InPlayerDown(Vector3 position) => PlayerOffsetPosition.y < position.y;
-
-        /// <summary>
-        /// 返回目标是否在玩家的下边 (玩家偏移坐标)
-        /// </summary>
-        /// <returns></returns>
-        public virtual bool InPlayerDown() => PlayerOffsetPosition.y < CurrentPosition.y;
-
-        #endregion
-
-        #endregion
+            return verticalDifference > 0 ? Vector2.up : Vector2.down;
+        }
     }
 }
