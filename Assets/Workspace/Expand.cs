@@ -1,4 +1,5 @@
-﻿using DG.Tweening;
+﻿using System.Runtime.CompilerServices;
+using DG.Tweening;
 using UnityEngine;
 
 namespace Workspace
@@ -29,5 +30,11 @@ namespace Workspace
         }
 
         public static Tween SetEase(this Tween tween, AnimationCurve curve, Ease ease) => tween.SetEase(ease, curve);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector2 V2(this Vector3 vector) => new(vector.x, vector.y);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector3 V3(this Vector2 vector, float z = 0F) => new(vector.x, vector.y, z);
     }
 }

@@ -15,42 +15,49 @@ namespace Workspace.FiniteStateMachine.ExpandInterface
         Vector3 PlayerOffsetPosition { get; }
 
 
+        Vector3 PlayerLocalScale { get; }
+        Vector3 CurrentLocalScale { get; }
+
+
         /// <summary>
         /// 返回与玩家之间的距离
         /// </summary>
         /// <returns></returns>
         public float Distance();
 
-        /// <summary>
-        /// 返回玩家是否在指定范围内
-        /// </summary>
-        /// <param name="rangeX">水平坐标的绝对范围 (为空时忽略)</param>
-        /// <param name="rangeY">垂直坐标的绝对范围 (为空时忽略)</param>
-        /// <returns>如果为 true 则表示玩家在此范围内</returns>
-        public bool InRangeAs(Range? rangeX, Range? rangeY);
 
         /// <summary>
-        /// 返回玩家是否在以当前位置的x进行偏移的指定范围内
+        /// 返回玩家是否在指定范围中
         /// </summary>
-        /// <param name="offsetX">水平坐标的绝对范围 (为空时忽略)</param>
-        /// <param name="offsetY">垂直坐标的绝对范围 (为空时忽略)</param>
-        /// <returns>如果为 true 则表示玩家在此范围内</returns>
+        /// <param name="forwardX">面向前方的坐标</param>
+        /// <param name="rearX">身后的坐标</param>
+        /// <param name="upY">上方坐标</param>
+        /// <param name="downY">下方坐标</param>
         /// <returns></returns>
-        public bool InRangeOffset(Range? offsetX, Range? offsetY);
+        bool InRangeAs(float? forwardX, float? rearX, float? upY, float? downY);
 
+        /// <summary>
+        /// 返回玩家指定范围中 (受 Transform.localScale.x) 影响
+        /// </summary>
+        /// <param name="offsetForwardX"></param>
+        /// <param name="offsetRearX"></param>
+        /// <param name="offsetUpY"></param>
+        /// <param name="offsetDownY"></param>
+        /// <returns></returns>
+        bool InRangeOffset(float? offsetForwardX, float? offsetRearX, float? offsetUpY, float? offsetDownY);
 
         /// <summary>
         /// 获取面向玩家的方向
         /// </summary>
         /// <returns></returns>
-        public Vector2 GetPlayerDirection();
+        public Vector3 GetPlayerDirection();
 
         /// <summary>
         /// 玩家在右边返回 Vector2.right，在左边返回 Vector2.left 当玩家在一定的范围内中返回 Vector2.zero
         /// </summary>
         /// <param name="tolerance">容差</param>
         /// <returns></returns>
-        public Vector2 GetPlayerHorizontalDirection(float tolerance = 0);
+        public Vector3 GetPlayerHorizontalDirection(float tolerance = 0);
 
 
         /// <summary>
@@ -58,6 +65,6 @@ namespace Workspace.FiniteStateMachine.ExpandInterface
         /// </summary>
         /// <param name="tolerance">容差</param>
         /// <returns></returns>
-        public Vector2 GetPlayerVerticalDirection(float tolerance = 0);
+        public Vector3 GetPlayerVerticalDirection(float tolerance = 0);
     }
 }

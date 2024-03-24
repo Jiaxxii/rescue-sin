@@ -83,12 +83,13 @@ namespace Workspace.Enemy.YuKFsmLogic
             }
             else _idleSwitchTimer += Time.deltaTime;
 
-            
+
             // 判断玩家是否在范围内
+            var unification = Resources.Unification(PrivateRes.FrontPoint.position.x, PrivateRes.RearPoint.position.x);
             if (Resources.InRangeAs(
-                    new Range(PrivateRes.FrontPoint.position.x, PrivateRes.RearPoint.position.x), null))
+                    unification.forward, unification.rear, null, null))
             {
-                Resources.ChangedState(YuKState.PlayerInRange);
+                Resources.ChangeState(YuKState.NotLookPlayer);
             }
         }
 

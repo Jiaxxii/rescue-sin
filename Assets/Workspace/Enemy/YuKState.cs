@@ -4,6 +4,7 @@
     {
         Idle,
         Move,
-        PlayerInRange
+        PlayerInRange,
+        NotLookPlayer
     }
 }

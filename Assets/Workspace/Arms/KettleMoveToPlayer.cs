@@ -56,7 +56,7 @@ namespace Workspace.Arms
             // 如果玩家在容忍范围内，则改变状态为空闲；否则，继续向玩家移动  
             if (currentDistance <= PrivateRes.EndToleranceDistance)
             {
-                Resources.ChangedState(KettleState.Idle);
+                Resources.ChangeState(KettleState.Idle);
                 return;
             }
 

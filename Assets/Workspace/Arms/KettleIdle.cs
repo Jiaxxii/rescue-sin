@@ -53,7 +53,7 @@ namespace Workspace.Arms
             // 默认状态下于玩家分开一定的距离时推出状态
             if (Resources.GetPlayerFloatDistance() >= PrivateRes.IdleOutRange)
             {
-                Resources.ChangedState(KettleState.MoveToPlayer);
+                Resources.ChangeState(KettleState.MoveToPlayer);
             }
         }
 

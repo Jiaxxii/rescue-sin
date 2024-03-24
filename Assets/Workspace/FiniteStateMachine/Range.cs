@@ -11,11 +11,6 @@ namespace Workspace.FiniteStateMachine
     {
         public Range(float min, float max)
         {
-            if (min >= max)
-            {
-                throw new ArgumentException("min 必须小于 max", nameof(min));
-            }
-
             this.min = min;
             this.max = max;
         }
@@ -47,8 +42,8 @@ namespace Workspace.FiniteStateMachine
             unchecked
             {
                 var hash = 17;
-                hash *= 23 + Min.GetHashCode();
-                return hash * 23 + Max.GetHashCode();
+                hash += 23 ^ Min.GetHashCode();
+                return hash + 23 ^ Max.GetHashCode();
             }
         }
 

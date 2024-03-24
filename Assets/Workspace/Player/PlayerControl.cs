@@ -7,6 +7,7 @@ namespace Workspace.Player
     public class PlayerControl : MonoBehaviour, PlayerControl.IPlayerMove
     {
         [SerializeField] private Animator animator;
+
         public float Horizontal { get; private set; }
 
         public Transform Transform => transform;
@@ -17,7 +18,7 @@ namespace Workspace.Player
 
         private readonly int _animatorHashSpeed = Animator.StringToHash("speed");
 
-          private void Awake() => Application.targetFrameRate = 60;
+        private void Awake() => Application.targetFrameRate = 60;
 
         private void Update()
         {

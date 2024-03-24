@@ -12,7 +12,7 @@ namespace Workspace.FiniteStateMachine
 
         // private readonly Dictionary<TState, IState<TState>> _stateMap = new();
 
-        [Header("玩家设置")] [SerializeField] protected Transform player;
+        protected Transform Player;
 
         [Tooltip("玩家的坐标点进行偏移")] [SerializeField]
         protected Vector2 playerOffset;
@@ -21,56 +21,72 @@ namespace Workspace.FiniteStateMachine
 
         public virtual Vector3 CurrentPosition => transform.position;
 
-        public Vector3 PlayerOffsetPosition => new(player.position.x + playerOffset.x, player.position.y + playerOffset.y, player.position.z);
+        public Vector3 PlayerOffsetPosition => new(Player.position.x + playerOffset.x, Player.position.y + playerOffset.y, Player.position.z);
+        public Vector3 PlayerLocalScale => Player.localScale;
+        public Vector3 CurrentLocalScale => transform.localScale;
+
 
         protected virtual void Update()
         {
             StateMachine?.Update();
         }
 
+        protected virtual void Awake()
+        {
+            Player = GameObject.FindGameObjectWithTag("Player").transform;
+        }
 
-        public void ChangedState(TState state) => StateMachine.ChangeState(state);
+
+        public void ChangeState(TState state) => StateMachine.ChangeState(state);
 
 
         public virtual float Distance() => Vector3.Distance(PlayerOffsetPosition, CurrentPosition);
 
-        
-        public virtual bool InRangeAs(Range? rangeX, Range? rangeY)
-        {
-            var resultX = true;
-            var resultY = true;
 
-            if (rangeX != null)
+        public virtual bool InRangeAs(float? forwardX, float? rearX, float? upY, float? downY)
+        {
+            var inHorizontal = true;
+            if (forwardX.HasValue && rearX.HasValue)
             {
-                resultX = PlayerOffsetPosition.x >= rangeX.Value.Min && PlayerOffsetPosition.x <= rangeX.Value.Max;
+                inHorizontal = PlayerOffsetPosition.x < forwardX.Value && PlayerOffsetPosition.x > rearX.Value;
             }
 
-            if (rangeY != null)
+            var inVertical = true;
+            if (upY.HasValue && downY.HasValue)
             {
-                resultY = PlayerOffsetPosition.y >= rangeY.Value.Min && PlayerOffsetPosition.y <= rangeY.Value.Max;
+                inVertical = PlayerOffsetPosition.y < upY.Value && PlayerOffsetPosition.x > downY.Value;
             }
 
-            return resultX && resultY;
+            return inHorizontal && inVertical;
         }
 
-        
-        public virtual bool InRangeOffset(Range? offsetX, Range? offsetY)
+        public virtual bool InRangeOffset(float? offsetForwardX, float? offsetRearX, float? offsetUpY, float? offsetDownY)
         {
-            Range? rangeX = null;
-            Range? rangeY = null;
-            if (offsetX != null) rangeX = new Range(CurrentPosition.x + offsetX.Value.Min, CurrentPosition.x + offsetX.Value.Max);
-            if (offsetY != null) rangeY = new Range(CurrentPosition.y + offsetY.Value.Min, CurrentPosition.y + offsetY.Value.Max);
-            return InRangeAs(rangeX, rangeY);
+            float? actualForwardX = null, actualRearX = null, actualUpY = null, actualDownY = null;
+
+            if (offsetForwardX.HasValue && offsetRearX.HasValue)
+            {
+                actualForwardX = CurrentPosition.x + offsetForwardX.Value;
+                actualRearX = CurrentPosition.x - offsetRearX.Value;
+            }
+
+            if (offsetUpY.HasValue && offsetDownY.HasValue)
+            {
+                actualUpY = CurrentPosition.y + offsetUpY.Value;
+                actualDownY = CurrentPosition.y - offsetDownY.Value;
+            }
+
+            return InRangeAs(actualForwardX, actualRearX, actualUpY, actualDownY);
         }
 
-        
+
         public float Distance(Vector3 position) => Vector3.Distance(PlayerOffsetPosition, position);
-        
-        
-        public Vector2 GetPlayerDirection() => (CurrentPosition - PlayerOffsetPosition).normalized;
-        
 
-        public Vector2 GetPlayerHorizontalDirection(float tolerance = 0)
+
+        public Vector3 GetPlayerDirection() => (CurrentPosition - PlayerOffsetPosition).normalized;
+
+
+        public Vector3 GetPlayerHorizontalDirection(float tolerance = 0)
         {
             var horizontalDifference = PlayerOffsetPosition.x - CurrentPosition.x;
 
@@ -79,9 +95,9 @@ namespace Workspace.FiniteStateMachine
 
             return horizontalDifference > 0 ? Vector2.right : Vector2.left;
         }
-        
-        
-        public Vector2 GetPlayerVerticalDirection(float tolerance = 0)
+
+
+        public Vector3 GetPlayerVerticalDirection(float tolerance = 0)
         {
             var verticalDifference = PlayerOffsetPosition.y - CurrentPosition.x;
 

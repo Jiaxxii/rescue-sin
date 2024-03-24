@@ -13,7 +13,7 @@ namespace Workspace.Arms
     {
         Transform Transform { get; }
         Transform FloatPoint { get; }
-        void ChangedState(KettleState state);
+        void ChangeState(KettleState state);
         float GetPlayerFloatDistance();
     }
 
@@ -31,8 +31,9 @@ namespace Workspace.Arms
         [Header("移动向玩家")] [SerializeField] private KettleMoveToPlayer.MoveToPlayerProperty moveToPlayerProperty;
 
 
-        private void Awake()
+        protected override void Awake()
         {
+            base.Awake();
             StateMachine = new StateMachine<KettleState, IKettle>(this);
             StateMachine.Add(new KettleIdle(this, idleProperty));
             StateMachine.Add(new KettleMoveToPlayer(this, moveToPlayerProperty));
