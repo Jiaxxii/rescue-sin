@@ -42,6 +42,11 @@ namespace Workspace.FiniteStateMachine
 
         public virtual float Distance() => Vector3.Distance(PlayerOffsetPosition, CurrentPosition);
 
+        public virtual Vector2 DistanceVector2()
+        {
+            return new Vector2(Mathf.Abs(PlayerOffsetPosition.x - CurrentPosition.y), Mathf.Abs(PlayerOffsetPosition.y - CurrentPosition.y));
+        }
+
 
         public virtual bool InRangeAs(float? forwardX, float? rearX, float? upY, float? downY)
         {

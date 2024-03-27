@@ -1,27 +1,19 @@
 ﻿using UnityEngine;
+using Workspace.EditorAttribute;
 using Workspace.FiniteStateMachine;
 
-namespace Workspace.Enemy.YuKFsmLogic
+namespace Workspace.FsmObjects.Enemy.YuKFsmLogic
 {
     public class YuKIdle : BaseState<YuKState, IYuK, YuKIdle.IdleProperty>
     {
         [System.Serializable]
         public class IdleProperty
         {
-            [Header("检测角色进入的范围")] [SerializeField] [Tooltip("应该设置为角色面向的坐标")]
-            private Transform frontPoint;
-
-            [SerializeField] [Tooltip("应该设置为角色背向的坐标")]
-            private Transform rearPoint;
-
             [Header("Idle动画")] [SerializeField] private AnimationClip[] idleAnimationClips;
 
-            [SerializeField] [Tooltip("设置切换下一个动画的时间(time = [x~y])")]
+            [SerializeField] [RewriteName("切换时间", "设置切换下一个动画的时间(time = [x~y])")]
             private Vector2 switchIdleSecondRange;
 
-            public Transform FrontPoint => frontPoint;
-
-            public Transform RearPoint => rearPoint;
 
             public Vector2 SwitchIdleSecondRange => switchIdleSecondRange;
 
@@ -85,11 +77,11 @@ namespace Workspace.Enemy.YuKFsmLogic
 
 
             // 判断玩家是否在范围内
-            var unification = Resources.Unification(PrivateRes.FrontPoint.position.x, PrivateRes.RearPoint.position.x);
+            var unification = Resources.Unification(Resources.FrontPoint.position.x, Resources.RearPoint.position.x);
             if (Resources.InRangeAs(
                     unification.forward, unification.rear, null, null))
             {
-                Resources.ChangeState(YuKState.NotLookPlayer);
+                Resources.ChangeState(YuKState.Look);
             }
         }
 

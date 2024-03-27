@@ -2,7 +2,7 @@
 using UnityEngine;
 using Workspace.FiniteStateMachine;
 
-namespace Workspace.Friendly.SinFsmLogic
+namespace Workspace.FsmObjects.Friendly.SinFsmLogic
 {
     public class SinLookPlayer : BaseState<SinState, ISin, SinLookPlayer.LookPlayerProperty>
     {

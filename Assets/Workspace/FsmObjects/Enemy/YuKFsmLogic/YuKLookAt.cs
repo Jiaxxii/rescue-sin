@@ -1,36 +1,29 @@
 ﻿using System;
 using DG.Tweening;
 using UnityEngine;
+using Workspace.EditorAttribute;
 using Workspace.FiniteStateMachine;
-using Workspace.Friendly;
 
-namespace Workspace.Enemy.YuKFsmLogic
+namespace Workspace.FsmObjects.Enemy.YuKFsmLogic
 {
     public class YuKLookAt : BaseState<YuKState, IYuK, YuKLookAt.LookAtProperty>
     {
         [Serializable]
         public class LookAtProperty
         {
-            [SerializeField] private float rotateTowardsSpeed;
-            public float RotateTowardsSpeed => rotateTowardsSpeed;
+            [RewriteName("转身持续时间")] [SerializeField]
+            private float rotateTowardsDuration;
 
-            [Header("检测角色进入的范围")] [SerializeField] [Tooltip("应该设置为角色面向的坐标")]
-            private Transform frontPoint;
-
-            [SerializeField] [Tooltip("应该设置为角色背向的坐标")]
-            private Transform rearPoint;
-
-
-            public Transform FrontPoint => frontPoint;
-
-            public Transform RearPoint => rearPoint;
+            [RewriteName("平滑曲线")] [SerializeField] private Ease ease = Ease.InOutSine;
+            public float RotateTowardsDuration => rotateTowardsDuration;
+            public Ease Ease => ease;
         }
 
         public YuKLookAt(IYuK resources, LookAtProperty privateRes) : base(resources, privateRes)
         {
         }
 
-        public override YuKState State => YuKState.NotLookPlayer;
+        public override YuKState State => YuKState.Look;
 
         private (float? forward, float? rear) _range;
         private float _currentLocalScaleX;
@@ -42,7 +35,7 @@ namespace Workspace.Enemy.YuKFsmLogic
             // 记录一开始的缩放
             _currentLocalScaleX = Resources.CurrentLocalScale.x;
             // 固定位置
-            _range = Resources.Unification(PrivateRes.FrontPoint.position.x, PrivateRes.RearPoint.position.x);
+            _range = Resources.Unification(Resources.FrontPoint.position.x, Resources.RearPoint.position.x);
         }
 
 
@@ -56,6 +49,8 @@ namespace Workspace.Enemy.YuKFsmLogic
                 {
                     // 向玩家就先转身 不移动
                     Turn();
+                    // TEST TODO
+                    Resources.AudioSource.Play();
                 }
 
                 if (_tween != null && _tween.IsComplete())
@@ -85,7 +80,8 @@ namespace Workspace.Enemy.YuKFsmLogic
             _tween = DOTween.To(
                     () => Resources.Transform.localScale,
                     v => Resources.Transform.localScale = v,
-                    new Vector3(-_currentLocalScaleX, Resources.CurrentLocalScale.y, Resources.CurrentLocalScale.z), PrivateRes.RotateTowardsSpeed)
+                    new Vector3(-_currentLocalScaleX, Resources.CurrentLocalScale.y, Resources.CurrentLocalScale.z), PrivateRes.RotateTowardsDuration)
+                .SetEase(PrivateRes.Ease)
                 .SetAutoKill(false);
         }
 

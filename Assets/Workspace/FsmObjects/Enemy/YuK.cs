@@ -1,17 +1,20 @@
-﻿using System;
-using UnityEngine;
-using UnityEngine.Serialization;
-using Workspace.Enemy.YuKFsmLogic;
+﻿using UnityEngine;
+using Workspace.EditorAttribute;
 using Workspace.FiniteStateMachine;
 using Workspace.FiniteStateMachine.ExpandInterface;
-using Range = Workspace.FiniteStateMachine.Range;
+using Workspace.FsmObjects.Enemy.YuKFsmLogic;
 
-namespace Workspace.Enemy
+namespace Workspace.FsmObjects.Enemy
 {
     public interface IYuK : IPlayerPosition
     {
         Animator YukAnimator { get; }
+        AudioSource AudioSource { get; }
         public Transform Transform { get; }
+
+        public Transform FrontPoint { get; }
+        public Transform RearPoint { get; }
+
         void ChangeState(YuKState state);
 
         public ( float? forward, float? rear) Unification(float? forward, float? rear);
@@ -19,14 +22,28 @@ namespace Workspace.Enemy
 
     public class YuK : FsmBehaviour<YuKState, IYuK>, IYuK
     {
+        [Header("检测角色进入的范围")] [SerializeField] [RewriteName("身前坐标", "应该设置为角色面向的坐标")]
+        private Transform frontPoint;
+
+        [SerializeField] [RewriteName("身后坐标", "应该设置为角色背向的坐标")]
+        private Transform rearPoint;
+
         [SerializeField] private Animator yuKAnimator;
+        [SerializeField] private AudioSource audioSource;
+
+
         [Header("默认状态")] [SerializeField] private YuKIdle.IdleProperty idleProperty;
-        [FormerlySerializedAs("notLookPlayerProperty")] [Header("转身")] [SerializeField] private YuKLookAt.LookAtProperty lookAtProperty;
+
+        [Header("转身")] [SerializeField] private YuKLookAt.LookAtProperty lookAtProperty;
 
         [Header("逃离")] [SerializeField] private YuKMove.MoveProperty moveProperty;
 
-        //  [Header("玩家进入范围")] [SerializeField] private YuKPlayerInRange.PlayerInRangeProperty playerInRangeProperty;
+
+        public Transform FrontPoint => frontPoint;
+        public Transform RearPoint => rearPoint;
+
         public Animator YukAnimator => yuKAnimator;
+        public AudioSource AudioSource => audioSource;
 
         public Transform Transform => transform;
 
@@ -45,12 +62,7 @@ namespace Workspace.Enemy
             StateMachine.Add(new YuKMove(this, moveProperty));
             ChangeState(YuKState.Idle);
         }
-
-        public void Unification(ref float? forward, ref float? rear)
-        {
-            if (transform.localScale.x > 0) return;
-            (forward, rear) = (rear, forward);
-        }
+        
 
         public (float? forward, float? rear) Unification(float? forward, float? rear)
         {

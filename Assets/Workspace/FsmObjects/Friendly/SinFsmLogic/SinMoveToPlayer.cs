@@ -1,9 +1,8 @@
 ﻿using System;
 using UnityEngine;
 using Workspace.FiniteStateMachine;
-using Range = Workspace.FiniteStateMachine.Range;
 
-namespace Workspace.Friendly.SinFsmLogic
+namespace Workspace.FsmObjects.Friendly.SinFsmLogic
 {
     public class SinMoveToPlayer : BaseState<SinState, ISin, SinMoveToPlayer.MoveToPlayerProperty>
     {

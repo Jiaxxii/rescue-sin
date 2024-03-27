@@ -1,12 +1,10 @@
-﻿using System;
-using UnityEngine;
-using Workspace.EditorAttribute;
+﻿using UnityEngine;
 using Workspace.FiniteStateMachine;
 using Workspace.FiniteStateMachine.ExpandInterface;
-using Workspace.Friendly.SinFsmLogic;
+using Workspace.FsmObjects.Friendly.SinFsmLogic;
 using Workspace.ScriptableObjectData;
 
-namespace Workspace.Friendly
+namespace Workspace.FsmObjects.Friendly
 {
     public interface ISin : IPlayerPosition
     {

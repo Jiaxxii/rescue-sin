@@ -3,35 +3,39 @@ using DG.Tweening;
 using UnityEngine;
 using Workspace.FiniteStateMachine;
 
-namespace Workspace.Arms
+namespace Workspace.FsmObjects.Arms.KettleFsmLogic
 {
-    public class KettleMoveToPlayer : BaseState<KettleState, IKettle, KettleMoveToPlayer.MoveToPlayerProperty>
+    public class KettleMoveTo : BaseState<KettleState, IKettle, KettleMoveTo.MoveToProperty>
     {
         [Serializable]
-        public class MoveToPlayerProperty
+        public class MoveToProperty
         {
             [SerializeField] private float duration;
             [Range(0.0001F, 1)] [SerializeField] private float endToleranceDistance = 0.01F;
             [SerializeField] private Ease moveEase;
+
             public float Duration => duration;
             public float EndToleranceDistance => endToleranceDistance;
             public Ease MoveEase => moveEase;
         }
-        public KettleMoveToPlayer(IKettle resources, MoveToPlayerProperty privateRes) : base(resources, privateRes)
+
+
+        public KettleMoveTo(IKettle resources, MoveToProperty privateRes) : base(resources, privateRes)
         {
         }
 
-        public override KettleState State => KettleState.MoveToPlayer;
+        public override KettleState State => KettleState.MoveTo;
 
 
         private float _initialDistance; // 初始时水壶与玩家之间的距离  
 
         private bool _isComplete;
 
+
         public override void OnEnter()
         {
             // 计算初始距离  
-            _initialDistance = Resources.GetPlayerFloatDistance();
+            _initialDistance = Resources.GetTargetDistanceXY(Resources.TagName).x;
 
             // 开始移动补间，使用初始距离计算出的持续时间  
             DoMove(_initialDistance);
@@ -41,17 +45,17 @@ namespace Workspace.Arms
         {
             // 如果补间不存在或已完成，并且玩家移动了，则重新计算并启动新的补间  
             if (_isComplete
-                && Resources.GetPlayerFloatDistance() > PrivateRes.EndToleranceDistance)
+                && Resources.GetTargetDistanceXY(Resources.TagName).x > PrivateRes.EndToleranceDistance)
             {
-                CheckDistanceAndMoveToPlayer();
+                CheckDistanceAndMoveTo();
             }
         }
 
-        private void CheckDistanceAndMoveToPlayer()
+        private void CheckDistanceAndMoveTo()
         {
             _isComplete = true;
             // 计算当前水壶与玩家的距离  
-            var currentDistance = Resources.GetPlayerFloatDistance();
+            var currentDistance = Resources.GetTargetDistanceXY(Resources.TagName).x;
 
             // 如果玩家在容忍范围内，则改变状态为空闲；否则，继续向玩家移动  
             if (currentDistance <= PrivateRes.EndToleranceDistance)
@@ -68,9 +72,9 @@ namespace Workspace.Arms
         {
             _isComplete = false;
             // 根据当前距离计算新的持续时间
-            Resources.Transform.DOMove(Resources.FloatPoint.position, GetDuration(distance))
+            Resources.Transform.DOMove(Resources.GetTargetOffsetPosition(Resources.TagName), GetDuration(distance))
                 .SetEase(PrivateRes.MoveEase)
-                .OnComplete(CheckDistanceAndMoveToPlayer); // 补间完成时再次检查距离  
+                .OnComplete(CheckDistanceAndMoveTo); // 补间完成时再次检查距离  
         }
 
         private float GetDuration(float distance)

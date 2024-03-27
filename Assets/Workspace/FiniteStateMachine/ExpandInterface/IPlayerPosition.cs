@@ -24,6 +24,9 @@ namespace Workspace.FiniteStateMachine.ExpandInterface
         /// </summary>
         /// <returns></returns>
         public float Distance();
+        
+        
+        public Vector2 DistanceVector2();
 
 
         /// <summary>

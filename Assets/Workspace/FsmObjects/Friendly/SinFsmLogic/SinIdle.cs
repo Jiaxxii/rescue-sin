@@ -3,9 +3,8 @@ using UnityEngine;
 using Workspace.EditorAttribute;
 using Workspace.FiniteStateMachine;
 using Workspace.ScriptableObjectData;
-using Range = Workspace.FiniteStateMachine.Range;
 
-namespace Workspace.Friendly.SinFsmLogic
+namespace Workspace.FsmObjects.Friendly.SinFsmLogic
 {
     public class SinIdle : BaseState<SinState, ISin, SinIdle.IdleProperty>
     {
@@ -46,7 +45,6 @@ namespace Workspace.Friendly.SinFsmLogic
         {
             if (!Resources.InRangeOffset(PrivateRes.Forward, PrivateRes.Rear, null, null))
             {
-                Debug.Log("look");
                 Resources.ChangeState(SinState.LookPlayer);
             }
         }

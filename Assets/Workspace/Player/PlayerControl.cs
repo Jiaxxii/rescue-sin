@@ -24,18 +24,16 @@ namespace Workspace.Player
         {
             Horizontal = Input.GetAxis("Horizontal");
 
+            if (Horizontal != 0)
+            {
+                transform.position += speed * Time.deltaTime * (Horizontal > 0 ? Vector3.right : Vector3.left);
+            }
+
             animator.SetFloat(_animatorHashSpeed, Mathf.Abs(Horizontal));
 
             RotateTowardsTarget2D();
         }
 
-        private void FixedUpdate()
-        {
-            if (Horizontal != 0)
-            {
-                transform.position += speed * Time.fixedDeltaTime * (Horizontal > 0 ? Vector3.right : Vector3.left);
-            }
-        }
 
         private void RotateTowardsTarget2D()
         {
