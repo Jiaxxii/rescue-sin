@@ -1,4 +1,4 @@
-﻿namespace Workspace.FsmObjects.Arms
+﻿namespace Workspace.FsmObjects.Arms.KettleObject
 {
     public enum KettleState
     {

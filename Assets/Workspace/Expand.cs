@@ -1,4 +1,6 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using DG.Tweening;
 using UnityEngine;
 
@@ -24,8 +26,10 @@ namespace Workspace
 
             if (curve != null) return tween.SetEase(curve);
 
+#if DEBUG
             Debug.LogWarning(
                 $"{nameof(AnimationCurve)}为空时 {nameof(Ease)}不能是 {nameof(Ease.Unset)}、{nameof(Ease.INTERNAL_Zero)}、{nameof(Ease.INTERNAL_Custom)}");
+#endif
             return tween.SetEase(Ease.Linear);
         }
 
@@ -36,5 +40,20 @@ namespace Workspace
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3 V3(this Vector2 vector, float z = 0F) => new(vector.x, vector.y, z);
+
+        public static TConfig FindConfig<TConfig>(this List<TConfig> list, Predicate<TConfig> mach)
+        {
+            if (list == null || list.Count == 0)
+            {
+                throw new NullReferenceException($"\"{list}\"列表中没有任何元素!");
+            }
+
+            if (mach == null)
+            {
+                return list[UnityEngine.Random.Range(0, list.Count)];
+            }
+
+            return list.Find(mach) ?? throw new ArgumentException("提供的匹配在列表中的查找结果为空!");
+        }
     }
 }

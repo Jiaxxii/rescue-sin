@@ -2,18 +2,13 @@
 using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
-using UnityEngine.Serialization;
 using Workspace.EditorAttribute;
 using Workspace.FiniteStateMachine;
 
-namespace Workspace.FsmObjects.Arms.KettleFsmLogic
+namespace Workspace.FsmObjects.Arms.ShockSelfDefenseObject.ShockSelfDefenseFsmLogic
 {
-    public class KettleIdle : BaseState<KettleState, IKettle, KettleIdle.IdleProperty>
+    public class ShockSelfDefenseIdle : BaseState<ShockSelfDefenseState, IShockSelfDefense, ShockSelfDefenseIdle.IdleProperty>
     {
-        public KettleIdle(IKettle resources, IdleProperty privateRes) : base(resources, privateRes)
-        {
-        }
-
         [Serializable]
         public class IdleProperty
         {
@@ -62,7 +57,7 @@ namespace Workspace.FsmObjects.Arms.KettleFsmLogic
         }
 
 
-        public override KettleState State => KettleState.Idle;
+        public override ShockSelfDefenseState State => ShockSelfDefenseState.Idle;
 
 
         private IdleProperty.Config _currentConfig;
@@ -70,10 +65,11 @@ namespace Workspace.FsmObjects.Arms.KettleFsmLogic
         public override void OnEnter()
         {
             // 更改配置
-            _currentConfig = PrivateRes.GetConfig(Resources.TagName);
+            _currentConfig = PrivateRes.GetConfig(Resources.Target.GetTag());
 
             // 设置悬浮动画
-            Resources.Transform.DOLocalMoveY(_currentConfig.TargetY, _currentConfig.OneLoopDuration * .5F)
+            var targetY = Resources.CurrentPosition.y + _currentConfig.TargetY;
+            Resources.Transform.DOMoveY(targetY, _currentConfig.OneLoopDuration * .5F)
                 .SetEase(_currentConfig.MoveCurve, _currentConfig.MoveEase)
                 .SetLoops(-1, LoopType.Yoyo);
         }
@@ -82,30 +78,31 @@ namespace Workspace.FsmObjects.Arms.KettleFsmLogic
         public override void OnUnityUpdate()
         {
             // 默认状态下于玩家分开一定的距离时推出状态
-            var distance = Resources.GetTargetDistanceXY(Resources.TagName);
+            var distance = Resources.DistanceVector2(Resources.Target.GetTag());
             if (distance.x >= _currentConfig.IdleOutRange.x || distance.y >= _currentConfig.IdleOutRange.y)
             {
-                Resources.ChangeState(KettleState.MoveTo);
+                Resources.ChangeState(ShockSelfDefenseState.MoveTo);
             }
 
             if (!Input.GetMouseButtonDown(0)) return;
-
-            // 表示水壶已经在敌人身上
-            if (Resources.TagName == "Enemy")
-            {
-                Resources.ChangeState(KettleState.Attack);
-                return;
-            }
-
+            //
+            // // 表示水壶已经在敌人身上
+            // if (Resources.TagName == "Enemy")
+            // {
+            //     Resources.ChangeState(KettleState.Attack);
+            //     return;
+            // }
+            //
             var worldPoint = Resources.MainCamera.ScreenToWorldPoint(Input.mousePosition);
 
             var hit = Physics2D.Raycast(worldPoint, Vector2.zero, 100F);
 
             if (hit.collider is null || !hit.collider.CompareTag("Enemy")) return;
-
+            //
             // 更新悬浮目标
-            Resources.UpDateTarget(hit.collider.gameObject);
-            Resources.ChangeState(KettleState.MoveTo);
+            // Resources.UpDateTarget(hit.collider.gameObject);
+            Resources.Target.UpDate(hit.collider);
+            Resources.ChangeState(ShockSelfDefenseState.Attack);
         }
 
 
@@ -113,6 +110,10 @@ namespace Workspace.FsmObjects.Arms.KettleFsmLogic
         {
             Resources.Transform.DOKill();
             _currentConfig = null;
+        }
+
+        public ShockSelfDefenseIdle(IShockSelfDefense resources, IdleProperty privateRes) : base(resources, privateRes)
+        {
         }
     }
 }

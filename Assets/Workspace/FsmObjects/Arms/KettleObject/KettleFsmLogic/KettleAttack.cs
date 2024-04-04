@@ -1,9 +1,11 @@
 ﻿using DG.Tweening;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Workspace.EditorAttribute;
 using Workspace.FiniteStateMachine;
+using Workspace.FsmObjects.Arms.ShockSelfDefenseObject;
 
-namespace Workspace.FsmObjects.Arms.KettleFsmLogic
+namespace Workspace.FsmObjects.Arms.KettleObject.KettleFsmLogic
 {
     public class KettleAttack : BaseState<KettleState, IKettle, KettleAttack.AttackProperty>
     {
@@ -29,6 +31,16 @@ namespace Workspace.FsmObjects.Arms.KettleFsmLogic
 
             [Space] [SerializeField] [RewriteName("返回玩家的触发距离")]
             private float returnPlayerDistance;
+
+            [Space] [SerializeField] [RewriteName("水")]
+            private ParticleSystem water;
+
+            [Space] [SerializeField] [RewriteName("水位置偏移")]
+            private Vector2 waterPositionOffset;
+
+            public Vector2 WaterPositionOffset => waterPositionOffset;
+
+            public ParticleSystem Water => water;
 
             public float ReturnPlayerDistance => returnPlayerDistance;
 
@@ -57,6 +69,8 @@ namespace Workspace.FsmObjects.Arms.KettleFsmLogic
         {
             var sequence = DOTween.Sequence();
 
+            sequence.AppendInterval(2F);
+
             sequence.Append(Resources.Transform.DORotate(new Vector3(0, 0, PrivateRes.RotateAngle), PrivateRes.DownDuration).SetEase(PrivateRes.DownEase));
 
             sequence.AppendCallback(OnPull);
@@ -78,11 +92,22 @@ namespace Workspace.FsmObjects.Arms.KettleFsmLogic
         // 浇水
         private void OnPull()
         {
+            PrivateRes.Water.transform.position = Resources.CurrentPosition + PrivateRes.WaterPositionOffset.V3();
+
+            var main = PrivateRes.Water.main;
+            main.startLifetime = new ParticleSystem.MinMaxCurve(PrivateRes.WaitForTimeSecond);
+
+            main.duration = PrivateRes.WaitForTimeSecond;
+
+            PrivateRes.Water.Play();
         }
 
         // 收
         private void OnPushUp()
         {
+            var property = Object.FindObjectOfType<ShockSelfDefense>() as IIdle;
+            property.SetTargetAsPlayer();
+            property.ChangeState(ShockSelfDefenseState.MoveTo);
         }
 
 

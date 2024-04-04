@@ -207,6 +207,20 @@ MonoBehaviour:
   moveProperty:
     speed: 5
     outDistance: 30
+  hurtProperty:
+    configs:
+    - configName: ShockSelfDefense
+      duration: 5
+      strength: {x: 0.5, y: 0, z: 0}
+      vibrato: 30
+      snapping: 0
+      fadeOut: 0
+      shakeRandomnessMode: 1
+      exitHurtRange: 3
+      galvanicOffset: {x: 0, y: 8}
+  offsetProperty:
+  - name: ShockSelfDefense
+    offset: {x: 0, y: 10}
 --- !u!82 &8854819782706357263
 AudioSource:
   m_ObjectHideFlags: 0
@@ -641,6 +655,10 @@ PrefabInstance:
       propertyPath: m_SortingLayerID
       value: 1725696191
       objectReference: {fileID: 0}
+    - target: {fileID: 2100272339594167827, guid: 4f199f45107ba144dbc9668b48e80e09, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
     - target: {fileID: 2726620545095115672, guid: 4f199f45107ba144dbc9668b48e80e09, type: 3}
       propertyPath: m_Layer
       value: 8

@@ -4,6 +4,7 @@
     {
         Idle,
         Move,
-        Look
+        Look,
+        Hurt
     }
 }

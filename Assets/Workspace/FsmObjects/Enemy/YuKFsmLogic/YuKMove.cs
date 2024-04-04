@@ -46,6 +46,7 @@ namespace Workspace.FsmObjects.Enemy.YuKFsmLogic
             {
                 Resources.ChangeState(YuKState.Look);
             }
+            
         }
 
 
